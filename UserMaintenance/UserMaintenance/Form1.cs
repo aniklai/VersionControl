@@ -20,14 +20,15 @@ namespace UserMaintenance
             listUsers.DataSource = users;
             listUsers.ValueMember = "ID";
             listUsers.DisplayMember = "FullName";
+            lblFullName.Text = Resource1.FullName;
+            btnAdd.Text = Resource1.Add;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             var u = new User()
             {
-                LastName = txtLastName.Text,
-                FirstName = txtFirstName.Text
+                FullName = textFullName.Text,
             };
             users.Add(u);
         }
