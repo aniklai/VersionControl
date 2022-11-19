@@ -19,6 +19,8 @@ namespace RealEstate
         Excel.Application xlApp;    // alkalmazás
         Excel.Workbook xlWB;        // munkafüzet
         Excel.Worksheet xlSheet;    // munkalap
+        int counter = 0;
+
         public Form1()
 
         {
@@ -56,8 +58,66 @@ namespace RealEstate
                 xlWB = null;
                 xlApp = null;
             }
+
         }
-        
+
+        private void CreateTable()
+        {
+            string[] headers = new string[]
+            {
+                 "Kód",
+                 "Eladó",
+                 "Oldal",
+                 "Kerület",
+                 "Lift",
+                 "Szobák száma",
+                 "Alapterület (m2)",
+                 "Ár (mFt)",
+                 "Négyzetméter ár (Ft/m2)"
+            };
+
+            for (int i = 0; i < headers.Length; i++)
+            {
+                xlSheet.Cells[1, i + 1] = headers[i];
+            }
+
+            object[,] values = new object[Flats.Count, headers.Length];
+
+            foreach (Flat flat in Flats)
+            {
+                values[counter, 0] = flat.Code;
+                values[counter, 1] = flat.Vendor;
+                values[counter, 2] = flat.Side;
+                values[counter, 3] = flat.District;
+                values[counter, 4] = flat.Elevator ? "Van" : "Nincs";
+                values[counter, 5] = flat.NumberOfRooms;
+                values[counter, 6] = flat.FloorArea;
+                values[counter, 7] = flat.Price;
+                values[counter, 8] = "=ROUND(" + GetCell(counter + 2, 8) + "/" + GetCell(counter + 2, 7) + ",2) * 1000000";
+
+                counter++;
+            }
+
+            xlSheet.get_Range(GetCell(2, 1), GetCell(1 + values.GetLength(0), values.GetLength(1))).Value2 = values;
+
+        }
+        private string GetCell(int x, int y)
+            {
+                string ExcelCoordinate = "";
+                int dividend = y;
+                int modulo;
+
+                while (dividend > 0)
+                {
+                    modulo = (dividend - 1) % 26;
+                    ExcelCoordinate = Convert.ToChar(65 + modulo).ToString() + ExcelCoordinate;
+                    dividend = (int)((dividend - modulo) / 26);
+                }
+                ExcelCoordinate += x.ToString();
+
+                return ExcelCoordinate;
+            }
+        }
 
     }
 }
