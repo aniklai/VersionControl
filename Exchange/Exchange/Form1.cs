@@ -22,7 +22,7 @@ namespace Exchange
         {
             InitializeComponent();
             dataGridView1.DataSource = Rates;
-            GetRates();
+            RefreshData();
         }
         public string GetRates()
         {
@@ -30,9 +30,9 @@ namespace Exchange
 
             var request = new GetExchangeRatesRequestBody()
             {
-                currencyNames = "EUR",
-                startDate = "2020-01-01",
-                endDate = "2020-06-30"
+                currencyNames = Convert.ToString(comboBox1.SelectedItem),
+                startDate = Convert.ToString(dateTimePicker1.Value),
+                endDate = Convert.ToString(dateTimePicker2.Value)
             };
 
             var response = mnbService.GetExchangeRates(request);
@@ -43,8 +43,6 @@ namespace Exchange
 
             mnbService.Close();
             return result;
-
-
         }
         public void GetCurrencies(string result)
         {
@@ -64,7 +62,6 @@ namespace Exchange
                     continue;
 
                 rate.Currency = childElement.GetAttribute("curr");
-
 
                 var unit = decimal.Parse(childElement.GetAttribute("unit"));
                 var value = decimal.Parse(childElement.InnerText);
@@ -88,6 +85,29 @@ namespace Exchange
             chartArea.AxisY.MajorGrid.Enabled = false;
             chartArea.AxisY.IsStartedFromZero = false;
         }
+        private void RefreshData()
+        {
+            Rates.Clear();
+            DataChart();
 
+            dataGridView1.DataSource = Rates;
+            chartRateData.DataSource = Rates;
+            GetCurrencies(GetRates());
+        }
+
+        private void dateTimePicker1_ValueChanged(object sender, EventArgs e)
+        {
+            RefreshData();
+        }
+
+        private void dateTimePicker2_ValueChanged(object sender, EventArgs e)
+        {
+            RefreshData();
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            RefreshData();
+        }
     }
 }
