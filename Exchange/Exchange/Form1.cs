@@ -18,10 +18,12 @@ namespace Exchange
     public partial class Form1 : Form
     {
         BindingList<RateData> Rates = new BindingList<RateData>();
+        BindingList<string> Currencies = new BindingList<string>();
         public Form1()
         {
             InitializeComponent();
             dataGridView1.DataSource = Rates;
+            LoadCurrencyList(GetCurrencyList());
             RefreshData();
         }
         public string GetRates()
@@ -69,6 +71,20 @@ namespace Exchange
                     rate.Value = value / unit;
             }
         }
+
+        private void LoadCurrencyList(string currlist)
+        {
+            XmlDocument xml = new XmlDocument();
+            xml.LoadXml(currlist);
+
+            foreach (XmlElement element in xml.DocumentElement)
+            {
+                foreach (XmlElement childElement in element.ChildNodes)
+                {
+                    Currencies.Add(childElement.InnerText);
+                }
+            }
+        }
         private void DataChart()
         {
             var series = chartRateData.Series[0];
@@ -92,6 +108,7 @@ namespace Exchange
 
             dataGridView1.DataSource = Rates;
             chartRateData.DataSource = Rates;
+            comboBox1.DataSource = Currencies;
             GetCurrencies(GetRates());
         }
 
@@ -108,6 +125,15 @@ namespace Exchange
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             RefreshData();
+        }
+
+        private string GetCurrencyList()
+        {
+            var mnbService = new MNBArfolyamServiceSoapClient();
+            var request = new GetCurrenciesRequestBody();
+            var response = mnbService.GetCurrencies(request);
+            var currlist = response.GetCurrenciesResult;
+            return currlist;
         }
     }
 }
